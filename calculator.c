@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "platform.h"
 #include "xparameters.h"
 #include "xgpio.h"
 #include "xil_printf.h"
@@ -14,11 +15,9 @@
 #define SSD_DRIVER_0_MASK     0b111111111
 #define SSD_DRIVER_1_MASK     0b111111111
 
-// Initials for 4-digit display (positive values for SSD driver)
-#define INITIAL_NR 			  -16  			// e.g., 'NR' encoded for SSD
-#define INITIAL_CD 			  -17  			// e.g., 'CD' encoded for SSD
-// #define INITIAL_NR 			  0x1F0  			// e.g., 'NR' encoded for SSD
-// #define INITIAL_CD 			  0x1EF  			// e.g., 'CD' encoded for SSD
+// Initials to display
+#define INITIAL_NR 			  0x110  			// 'NR'
+#define INITIAL_CD 			  0x111  			// 'CD'
 
 
 // Global SSD devices
@@ -78,21 +77,21 @@ int main() {
 
 		// invalid input
 		if (!valid || a < 0 || b < 0) {
-			print("Error: Invalid operator or input!\n\r");
+			xil_printf("Error: Invalid operator or input!\n\r");
 			display_initials();
 			continue;
 		}
 
 		// overflow
 		if (result < -0xFFF || result > 0xFFFF) {
-			print("Error: Overflow! Result: %d\n\r", result);
+			xil_printf("Error: Overflow! Result: %d\n\r", result);
 			display_initials();
 			continue;
 		}
 
 		// display result on terminal
-		print("Result (decimal): %d\n\r", result);
-		print("Result (hex): 0x%X\n\r", result);
+		xil_printf("Result (decimal): %d\n\r", result);
+		xil_printf("Result (hex): 0x%X\n\r", result);
 
 		// Display result on SSDs
         display_result(result);
@@ -147,10 +146,10 @@ void display_result(int result) {
     int mag = (result < 0) ? -result : result;
 
     // Left PMOD: signed MSB
-    left = (result < 0) ? -(mag >> 8) : (mag >> 8);
+    left = (result < 0) ? (0x100 + (mag >> 8)) : (mag >> 8);
 
     // Right PMOD: last two digits
-    right = mag & 0xFF;
+    right = mag & 0x0FF;
 
     XGpio_DiscreteWrite(&ssd_driver_0_device, SSD_DRIVER_0_CHANNEL, left);
     XGpio_DiscreteWrite(&ssd_driver_1_device, SSD_DRIVER_1_CHANNEL, right);
