@@ -80,25 +80,26 @@ module ssd_driver(
     always @(*) begin
         if (data_in[8] == 1) begin
             case (data_in[7:0])
-                8'hFF: display = sel ? 5'h10 : 5'h01; // -1
-                8'hFE: display = sel ? 5'h10 : 5'h02; // -2
-                8'hFD: display = sel ? 5'h10 : 5'h03; // -3
-                8'hFC: display = sel ? 5'h10 : 5'h04; // -4
-                8'hFB: display = sel ? 5'h10 : 5'h05; // -5
-                8'hFA: display = sel ? 5'h10 : 5'h06; // -6
-                8'hF9: display = sel ? 5'h10 : 5'h07; // -7
-                8'hF8: display = sel ? 5'h10 : 5'h08; // -8
-                8'hF7: display = sel ? 5'h10 : 5'h09; // -9
-                8'hF6: display = sel ? 5'h10 : 5'h0A; // -A
-                8'hF5: display = sel ? 5'h10 : 5'h0B; // -b
-                8'hF4: display = sel ? 5'h10 : 5'h0C; // -C
-                8'hF3: display = sel ? 5'h10 : 5'h0D; // -d
-                8'hF2: display = sel ? 5'h10 : 5'h0E; // -E
-                8'hF1: display = sel ? 5'h10 : 5'h0F; // -F
+                8'h00: display = sel ? 5'h10 : 5'h00; // -0
+                8'h01: display = sel ? 5'h10 : 5'h01; // -1
+                8'h02: display = sel ? 5'h10 : 5'h02; // -2
+                8'h03: display = sel ? 5'h10 : 5'h03; // -3
+                8'h04: display = sel ? 5'h10 : 5'h04; // -4
+                8'h05: display = sel ? 5'h10 : 5'h05; // -5
+                8'h06: display = sel ? 5'h10 : 5'h06; // -6
+                8'h07: display = sel ? 5'h10 : 5'h07; // -7
+                8'h08: display = sel ? 5'h10 : 5'h08; // -8
+                8'h09: display = sel ? 5'h10 : 5'h09; // -9
+                8'h0A: display = sel ? 5'h10 : 5'h0A; // -A
+                8'h0B: display = sel ? 5'h10 : 5'h0B; // -b
+                8'h0C: display = sel ? 5'h10 : 5'h0C; // -C
+                8'h0D: display = sel ? 5'h10 : 5'h0D; // -d
+                8'h0E: display = sel ? 5'h10 : 5'h0E; // -E
+                8'h0F: display = sel ? 5'h10 : 5'h0F; // -F
 
                 // Custom initials examples:
-                8'hF0: display = sel ? 5'h11 : 5'h12; // "nr"
-                8'hEF: display = sel ? 5'h12 : 5'h13; // "cd"
+                8'h10: display = sel ? 5'h11 : 5'h12; // "nr"
+                8'h11: display = sel ? 5'h12 : 5'h13; // "cd"
                 default: display = sel ? data_in[7:4] : data_in[3:0];    // data_in[8] = 0
             endcase
         end 
