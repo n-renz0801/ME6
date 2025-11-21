@@ -77,32 +77,48 @@ module ssd_driver(
         endcase
     end
 
-    always @(*) begin
-        if (data_in[8] == 1) begin
-            case (data_in[7:0])
-                8'h00: display = sel ? 5'h10 : 5'h00; // -0
-                8'h01: display = sel ? 5'h10 : 5'h01; // -1
-                8'h02: display = sel ? 5'h10 : 5'h02; // -2
-                8'h03: display = sel ? 5'h10 : 5'h03; // -3
-                8'h04: display = sel ? 5'h10 : 5'h04; // -4
-                8'h05: display = sel ? 5'h10 : 5'h05; // -5
-                8'h06: display = sel ? 5'h10 : 5'h06; // -6
-                8'h07: display = sel ? 5'h10 : 5'h07; // -7
-                8'h08: display = sel ? 5'h10 : 5'h08; // -8
-                8'h09: display = sel ? 5'h10 : 5'h09; // -9
-                8'h0A: display = sel ? 5'h10 : 5'h0A; // -A
-                8'h0B: display = sel ? 5'h10 : 5'h0B; // -b
-                8'h0C: display = sel ? 5'h10 : 5'h0C; // -C
-                8'h0D: display = sel ? 5'h10 : 5'h0D; // -d
-                8'h0E: display = sel ? 5'h10 : 5'h0E; // -E
-                8'h0F: display = sel ? 5'h10 : 5'h0F; // -F
+        // Interpret data_in as a 9-bit signed two's-complement integer from C
+    wire signed [8:0] data_s = data_in;
+    reg [7:0] abs_val;
 
-                // Custom initials examples:
-                8'h10: display = sel ? 5'h11 : 5'h12; // "nr"
-                8'h11: display = sel ? 5'h12 : 5'h13; // "cd"
-                default: display = sel ? data_in[7:4] : data_in[3:0];    // data_in[8] = 0
-            endcase
-        end 
-        else display = sel ? data_in[7:4] : data_in[3:0];    // data_in[8] = 0
+    always @(*) begin
+        // ==== Custom codes first ====
+        if (data_s == -16) begin
+            // "nr" : left digit = 'n', right digit = 'r'
+            if (sel)
+                display = 5'h11;   // 'n'
+            else
+                display = 5'h12;   // 'r'
+
+        end else if (data_s == -17) begin
+            // "cd" : left digit = 'c', right digit = 'd'
+            if (sel)
+                display = 5'h13;   // 'c'
+            else
+                display = 5'h0D;   // 'd' (you already mapped 5'h0D as 'd')
+
+        // ==== Generic signed number handling ====
+        end else if (data_s < 0) begin
+            // Negative value: show "-X" where X is hex digit 0..F
+            abs_val = -data_s;  // magnitude: 1..255
+
+            // Only support -0 .. -F (magnitude < 16) nicely
+            if (abs_val[7:4] == 4'h0) begin
+                if (sel)
+                    display = 5'h10;                 // minus sign
+                else
+                    display = {1'b0, abs_val[3:0]};  // hex digit 0..F
+            end else begin
+                // Magnitude too big for single hex digit: show "--" (both minus)
+                display = 5'h10;
+            end
+
+        end else begin
+            // Non-negative: show 8-bit value as two hex digits
+            if (sel)
+                display = {1'b0, data_in[7:4]};  // high nibble
+            else
+                display = {1'b0, data_in[3:0]};  // low nibble
+        end
     end
 endmodule
